@@ -1,7 +1,6 @@
 package com.example.obswitchcompat;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -9,6 +8,7 @@ import android.os.Build;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +20,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by kognsin on 10/6/2016.
@@ -40,31 +39,33 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     private RelativeLayout mainLayout;
     private LinearLayout titleLayout;
     private List<TextView> titleViews = new ArrayList<>();
-    private int mTabCount;
-    private String[] mTitle;
-    private TextView mThrumbView;
+    private int mTabCount = 0;
+    private TextView mThumbView;
     private static final String TAG = "ObSwitchCompat";
     private int currentPosition = 0;
-    private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
+    private boolean isScrollNormal = true;
+    private boolean checked = false;
+    private int titleTextSize = 14;
 
     private int trackColor = Color.WHITE;
     private int trackStokeColor = Color.GRAY;
     private int trackStokeWidth = DEFAULT_STROKE_WIDTH;
+    private int trackTextColor = Color.GRAY;
+    private int trackWidth = DEFAULT_TRACK_WIDTH;
+    private int trackHeight = DEFAULT_TRACK_HEIGHT;
 
     private int thrumbColor = Color.GRAY;
     private int thrumbStokeColor = Color.WHITE;
     private int thrumbStokeWidth = DEFAULT_STROKE_WIDTH;
-
     private int thrumbTextColor = Color.WHITE;
-    private int trackTextColor = Color.GRAY;
-    private int cornerRadians = 50;
-
-    private int trackWidth = DEFAULT_TRACK_WIDTH;
-    private int trackHeight = DEFAULT_TRACK_HEIGHT;
-
     private int thrumbWidth = DEFAULT_THRUMB_WIDTH;
     private int thrumbHeight = DEFAULT_THRUMB_HEIGHT;
+
+    private int cornerRadians = 50;
+
     private ViewPager mPager;
+    private Drawable trackDrawable;
+    private Drawable thumbDrawable;
 
     public void setCornerRadians(int cornerRadians) {
         this.cornerRadians = cornerRadians;
@@ -77,7 +78,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
 
     public void setTrackColor(int trackColor) {
         this.trackColor = trackColor;
-        invalidateView();
+        initTrack();
     }
 
     public int getTrackColor() {
@@ -86,7 +87,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
 
     public void setTrackStokeColor(int trackStokeColor) {
         this.trackStokeColor = trackStokeColor;
-        invalidateView();
+        initTrack();
     }
 
     public int getTrackStokeColor() {
@@ -95,46 +96,46 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
 
     public void setTrackStokeWidth(int trackStokeWidth) {
         this.trackStokeWidth = trackStokeWidth;
-        invalidateView();
+        initTrack();
     }
 
     public int getTrackStokeWidth() {
         return trackStokeWidth;
     }
 
-    public void setThrumbColor(int thrumbColor) {
+    public void setThumbColor(int thrumbColor) {
         this.thrumbColor = thrumbColor;
-        invalidateView();
+        initThumbView();
     }
 
-    public int getThrumbColor() {
+    public int getThumbColor() {
         return thrumbColor;
     }
 
-    public void setThrumbStokeWidth(int thrumbStokeWidth) {
+    public void setThumbStokeWidth(int thrumbStokeWidth) {
         this.thrumbStokeWidth = thrumbStokeWidth;
-        invalidateView();
+        initThumbView();
     }
 
-    public int getThrumbStokeWidth() {
+    public int getThumbStokeWidth() {
         return thrumbStokeWidth;
     }
 
-    public void setThrumbStokeColor(int thrumbStokeColor) {
+    public void setThumbStokeColor(int thrumbStokeColor) {
         this.thrumbStokeColor = thrumbStokeColor;
-        invalidateView();
+        initThumbView();
     }
 
-    public int getThrumbStokeColor() {
+    public int getThumbStokeColor() {
         return thrumbStokeColor;
     }
 
-    public void setThrumbTextColor(int thrumbTextColor) {
+    public void setThumbTextColor(int thrumbTextColor) {
         this.thrumbTextColor = thrumbTextColor;
-        invalidateView();
+        initThumbView();
     }
 
-    public int getThrumbTextColor() {
+    public int getThumbTextColor() {
         return thrumbTextColor;
     }
 
@@ -162,33 +163,34 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         initView(attrs);
     }
 
-    private SharedPreferences getPref(){
-        return getContext().getSharedPreferences("OBSW", Context.MODE_PRIVATE);
-    }
-
-    private void saveInx(int inx){
-        getPref().edit().putInt("INX", inx).apply();
-    }
-
-    private int getInx(){
-        return getPref().getInt("INX", 0);
-    }
-
     private ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
             if (positionOffset > 0){
                 setCurrentTab(positionOffset);
             } else {
-                setCurrentTab(getInx());
+                setCurrentTab(currentPosition);
+                if (!checked) {
+                    mPager.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            checkScrollType();
+                        }
+                    });
+                }
             }
         }
 
         @Override
-        public void onPageSelected(int position) {
-            mThrumbView.setText(mTitle[position]);
-            currentPosition = position;
-            saveInx(position);
+        public void onPageSelected(final int position) {
+            mPager.post(new Runnable() {
+                @Override
+                public void run() {
+                    mThumbView.setText(getPageTitle(position));
+                    currentPosition = position;
+                    setCurrentTab(position);
+                }
+            });
         }
 
         @Override
@@ -197,111 +199,188 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         }
     };
 
-    public void setupWithViewPager(ViewPager pager){
-        mPager = pager;
-        mPager.addOnPageChangeListener(pageChangeListener);
-    }
-
-    public void setCurrentTab(float currentPosition){
-        mThrumbView.setX((mainLayout.getX() + mainLayout.getPaddingLeft()) + (((mainLayout.getWidth() / mTabCount) - mainLayout.getPaddingLeft() - mainLayout.getPaddingRight()) * currentPosition));
-    }
-
-    public void initView(AttributeSet attrs){
-        inflatLayout();
-    }
-
-    public void initView(){
-        inflatLayout();
-    }
-
-    public void setTitle(String[] title){
-        this.mTitle = title;
-        if (title != null){
-            this.mTabCount = title.length;
+    private String getPageTitle(int position){
+        if (mPager != null){
+            return mPager.getAdapter().getPageTitle(position).toString();
+        } else {
+            return "";
         }
     }
 
-    private void inflatLayout(){
+    public void setupWithViewPager(ViewPager pager){
+        mPager = pager;
+        if (mPager != null) {
+            mTabCount = mPager.getAdapter().getCount();
+            mPager.addOnPageChangeListener(pageChangeListener);
+            invalidateView();
+        }
+    }
+
+    public void setCurrentTab(float currentPosition){
+        if (mTabCount > 0) {
+            mThumbView.setX((mainLayout.getX() + mainLayout.getPaddingLeft()) + (((mainLayout.getWidth() / mTabCount) - mainLayout.getPaddingLeft() - mainLayout.getPaddingRight()) * currentPosition));
+        }
+    }
+
+    public void initView(AttributeSet attrs){
+        inflatLayout(attrs);
+    }
+
+    public void initView(){
+        inflatLayout(null);
+    }
+
+    private void inflatLayout(AttributeSet attrs){
         LayoutInflater inflaterCompat = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflaterCompat.inflate(R.layout.ob_switch_compat_layout, this);
-
         mainLayout = (RelativeLayout) findViewById(R.id.main_layout);
-        mainLayout.setPadding(parseDP(1), parseDP(1), parseDP(1), parseDP(1));
-
         titleLayout = (LinearLayout) findViewById(R.id.titleLayout);
-
         invalidateView();
     }
 
     private void invalidateView(){
+        checked = false;
+        initMainLayout();
+        initTrack();
+        initTitle();
+        initThumbView();
+        initCurrentTab();
+
+        if (isInEditMode()){
+            setThumbText("TAB"+currentPosition);
+        } else {
+            setThumbText(getPageTitle(currentPosition));
+        }
+
+        if (isInEditMode()) {
+            setThumbText("TAB1");
+        }
+
+        setThumbMoveable();
+    }
+
+    private void checkScrollType(){
+        if (mPager != null && !checked){
+            if (mPager.getScrollX() != currentPosition * mPager.getWidth()){
+                isScrollNormal = false;
+            } else {
+                isScrollNormal = true;
+            }
+            checked = true;
+        }
+    }
+
+    private void initTitle() {
+        if (mPager != null) {
+            titleLayout.removeAllViews();
+            for (TextView textView : getTitleViews()) {
+                titleLayout.addView(textView);
+            }
+        }
+    }
+
+    private void initMainLayout() {
+        mainLayout.setPadding(parseDP(1), parseDP(1), parseDP(1), parseDP(1));
         mainLayout.getLayoutParams().width = parseDP(trackWidth);
         mainLayout.getLayoutParams().height = parseDP(trackHeight);
+    }
+
+    public void initThumbView(){
+        mainLayout.removeView(mThumbView);
+        mainLayout.addView(getThumbView());
+        setThumbMoveable();
+    }
+
+    private void initCurrentTab() {
+        if (mPager != null && mPager.getAdapter().getCount() > 0) {
+            mPager.post(new Runnable() {
+                @Override
+                public void run() {
+                    setCurrentTab(mPager.getCurrentItem());
+                    setThumbText(getPageTitle(currentPosition));
+                }
+            });
+        } else {
+            setCurrentTab(currentPosition);
+        }
+    }
+
+    private void initTrack() {
 
         titleLayout.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
         titleLayout.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
         titleLayout.setGravity(Gravity.CENTER);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mainLayout.setBackground(getTrack());
+            mainLayout.setBackground(trackDrawable != null ? trackDrawable : getTrack());
         } else {
-            mainLayout.setBackgroundDrawable(getTrack());
+            mainLayout.setBackgroundDrawable(trackDrawable != null ? trackDrawable : getTrack());
         }
-
-        if (isInEditMode()){
-            setTitle(new String[]{"TAB1", "TAB2"});
-        }
-
-        if (mTitle != null && mTitle.length > 0) {
-            for (TextView textView : getTitleViews()) {
-                titleLayout.addView(textView);
-            }
-        }
-
-        mainLayout.removeView(mThrumbView);
-        mainLayout.addView(getThrumbView());
-
-        if (isInEditMode()) {
-            setThrumbText("TAB1");
-        }
-
-        if (mTitle != null && mTitle.length > 0) {
-            setThrumbText(mTitle[currentPosition]);
-        }
-
-        if (mPager != null){
-            mPager.setCurrentItem(currentPosition);
-        }
-
-        setThumbMoveable();
 
     }
 
     public void setThumbMoveable() {
         int[] posXY = new int[2];
         mainLayout.getLocationOnScreen(posXY);
-        new ToggleSlide(mThrumbView, posXY[0] + mainLayout.getPaddingLeft(), (((posXY[0] + parseDP(trackWidth)) - mainLayout.getPaddingRight()) - parseDP(thrumbWidth)), new ToggleSlide.GesturCallBack() {
+        new ToggleSlide(mThumbView, posXY[0] + mainLayout.getPaddingLeft(), (((posXY[0] + parseDP(trackWidth)) - mainLayout.getPaddingRight()) - parseDP(thrumbWidth)), new ToggleSlide.GesturCallBack() {
             @Override
             public void left() {
-                currentPosition = 0;
-                mPager.setCurrentItem(0);
-                mPager.scrollTo(0, 0);
-                setCurrentTab(0);
+                if (currentPosition == 0){
+                    currentPosition = 0;
+                    setCurrentTab(0);
+                    mThumbView.setText(getPageTitle(0));
+                    pageScroll(0);
+                    mPager.setCurrentItem(0, false);
+                } else {
+                    currentPosition = currentPosition - 1;
+                    setCurrentTab(currentPosition);
+                    mThumbView.setText(getPageTitle(currentPosition));
+                    pageScroll(currentPosition * mPager.getWidth());
+                    mPager.setCurrentItem(currentPosition, false);
+                }
+
             }
 
             @Override
             public void right() {
-                currentPosition = 1;
-                mPager.setCurrentItem(1);
-                mPager.scrollTo((mPager.getWidth() * mTabCount) - mPager.getWidth(), 0);
-                setCurrentTab(1);
+
+                if (currentPosition >= mPager.getAdapter().getCount() -1){
+                    currentPosition = mPager.getAdapter().getCount() - 1;
+                    setCurrentTab(currentPosition);
+                    mThumbView.setText(getPageTitle(currentPosition));
+                    scrollWidthFixedWrongPosition(currentPosition * mPager.getWidth());
+                    mPager.setCurrentItem(currentPosition, false);
+                } else {
+                    currentPosition = currentPosition + 1;
+                    setCurrentTab(currentPosition);
+                    mThumbView.setText(getPageTitle(currentPosition));
+                    scrollWidthFixedWrongPosition(currentPosition * mPager.getWidth());
+                    mPager.setCurrentItem(currentPosition, false);
+                }
+
+
             }
 
             @Override
             public void onScroll(float posX) {
-                float persent = ((posX * 100)/mThrumbView.getWidth());
-                mPager.scrollTo((int) ((persent * mPager.getWidth()) / 100), 0);
+                float persent = ((posX * 100)/mThumbView.getWidth());
+                int scrollValue = (int) ((persent * mPager.getWidth()) / 100);
+                scrollWidthFixedWrongPosition(scrollValue);
             }
         });
+    }
+
+    private void scrollWidthFixedWrongPosition(int position){
+        int pageWidth = mPager.getWidth();
+        if (!isScrollNormal) {
+            pageScroll(position - pageWidth);
+        } else {
+            pageScroll(position);
+        }
+    }
+
+    private void pageScroll(int position){
+        mPager.scrollTo(position, 0);
     }
 
     private List<TextView> getTitleViews(){
@@ -314,56 +393,71 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
             TextView textView = new TextView(getContext());
             textView.setPadding(parseDP(4), parseDP(2), parseDP(4), parseDP(2));
             textView.setLayoutParams(params);
-            textView.setText(mTitle[i]);
+            textView.setText(getPageTitle(i));
             textView.setGravity(Gravity.CENTER);
             textView.setOnClickListener(this);
+            textView.setTextSize(this.titleTextSize);
             textView.setTag(i);
             titleViews.add(textView);
         }
         return titleViews;
     }
 
-    private TextView getThrumbView(){
-
-        mThrumbView = new TextView(getContext());
-        mThrumbView.setGravity(Gravity.CENTER);
-        mThrumbView.setTextColor(Color.WHITE);
-        mThrumbView.setWidth(parseDP(thrumbWidth));
-        mThrumbView.setHeight(parseDP(thrumbHeight));
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mThrumbView.setBackground(getThrumb());
-        } else {
-            mThrumbView.setBackgroundDrawable(getThrumb());
-        }
-
-        return mThrumbView;
+    public void setTitleTextSize(int val){
+        this.titleTextSize = parseDP(val);
     }
 
-    public void setThrumbText(String text){
-        mThrumbView.setText(text);
+    private TextView getThumbView(){
+
+        mThumbView = new TextView(getContext());
+        mThumbView.setGravity(Gravity.CENTER);
+        mThumbView.setTextColor(Color.WHITE);
+        mThumbView.setWidth(parseDP(thrumbWidth));
+        mThumbView.setHeight(parseDP(thrumbHeight));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            mThumbView.setBackground(thumbDrawable != null ? thumbDrawable : getThumb());
+        } else {
+            mThumbView.setBackgroundDrawable(thumbDrawable != null ? thumbDrawable : getThumb());
+        }
+
+        return mThumbView;
+    }
+
+    public void setThumbText(String text){
+        mThumbView.setText(text);
     }
 
     private Drawable getTrack(){
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(trackColor);
-        drawable.setStroke(parseDP(trackStokeWidth), trackStokeColor);
-        drawable.setCornerRadius(parseDP(cornerRadians));
-        drawable.setSize(parseDP(trackWidth), parseDP(trackHeight));
-        drawable.setShape(GradientDrawable.RECTANGLE);
-        drawable.setBounds(parseDP(0), parseDP(0), parseDP(trackWidth), parseDP(trackHeight));
-        return drawable;
+        GradientDrawable trackDrawable = new GradientDrawable();
+        trackDrawable.setColor(trackColor);
+        trackDrawable.setStroke(parseDP(trackStokeWidth), trackStokeColor);
+        trackDrawable.setCornerRadius(parseDP(cornerRadians));
+        trackDrawable.setSize(parseDP(trackWidth), parseDP(trackHeight));
+        trackDrawable.setShape(GradientDrawable.RECTANGLE);
+        trackDrawable.setBounds(parseDP(0), parseDP(0), parseDP(trackWidth), parseDP(trackHeight));
+        return trackDrawable;
     }
 
-    private Drawable getThrumb(){
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(thrumbColor);
-        drawable.setStroke(parseDP(thrumbStokeWidth), thrumbStokeColor);
-        drawable.setCornerRadius(parseDP(cornerRadians));
-        drawable.setSize(parseDP(thrumbWidth), parseDP(thrumbHeight));
-        drawable.setBounds(parseDP(0), parseDP(0), parseDP(thrumbWidth), parseDP(thrumbHeight));
-        drawable.setShape(GradientDrawable.RECTANGLE);
-        return drawable;
+    private Drawable getThumb(){
+        GradientDrawable thumbDrawable = new GradientDrawable();
+        thumbDrawable.setColor(thrumbColor);
+        thumbDrawable.setStroke(parseDP(thrumbStokeWidth), thrumbStokeColor);
+        thumbDrawable.setCornerRadius(parseDP(cornerRadians));
+        thumbDrawable.setSize(parseDP(thrumbWidth), parseDP(thrumbHeight));
+        thumbDrawable.setBounds(parseDP(0), parseDP(0), parseDP(thrumbWidth), parseDP(thrumbHeight));
+        thumbDrawable.setShape(GradientDrawable.RECTANGLE);
+        return thumbDrawable;
+    }
+
+    public void setTrackDrawable(Drawable drawable){
+        trackDrawable = drawable;
+        initTrack();
+    }
+
+    public void setThumbDrawable(Drawable drawable){
+        thumbDrawable = drawable;
+        initThumbView();
     }
 
     private int parseDP(int dp){
@@ -376,8 +470,8 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         if (v instanceof TextView){
             int position = (int) v.getTag();
             setCurrentTab(position);
-            mPager.setCurrentItem(position);
             currentPosition = position;
+            mPager.setCurrentItem(currentPosition, true);
         }
     }
 }

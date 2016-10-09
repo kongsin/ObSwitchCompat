@@ -1,7 +1,9 @@
 package com.example.kognsin.switchcompat;
 
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,9 +22,26 @@ public class BlankFragment extends Fragment {
         // Required empty public constructor
     }
 
+    public static BlankFragment newInstance(String pageNumber) {
+
+        Bundle args = new Bundle();
+        args.putString("P", pageNumber);
+        BlankFragment fragment = new BlankFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     public BlankFragment setPage(String p){
         this.p = p;
         return this;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null){
+            setPage(getArguments().getString("P"));
+        }
     }
 
     @Override
@@ -32,6 +51,11 @@ public class BlankFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_blank, container, false);
         TextView textView = (TextView) view.findViewById(R.id.tv);
         textView.setText(p);
+        if (p.equals("Page 1")){
+            view.setBackgroundColor(Color.BLUE);
+        } else {
+            view.setBackgroundColor(Color.RED);
+        }
         return view;
     }
 

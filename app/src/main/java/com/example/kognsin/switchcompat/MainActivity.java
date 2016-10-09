@@ -16,40 +16,40 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     ViewPager pager;
     ObSwitchCompat obSwitchCompat;
-    List<Fragment> fragments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        fragments = new ArrayList<>();
-        fragments.add(new BlankFragment().setPage("Page 1"));
-        fragments.add(new BlankFragment().setPage("Page 2"));
+
         pager = (ViewPager) findViewById(R.id.pager);
-        pager.setAdapter(new FragmentAdapter(getSupportFragmentManager(), fragments));
+        pager.setAdapter(new FragmentAdapter(getSupportFragmentManager()));
+        pager.setCurrentItem(0);
+
         obSwitchCompat = (ObSwitchCompat) findViewById(R.id.obSwitchCompat);
-        obSwitchCompat.setTitle(new String[]{"TAB1", "TAB2"});
         obSwitchCompat.setTrackColor(Color.GREEN);
         obSwitchCompat.setupWithViewPager(pager);
     }
 
     public class FragmentAdapter extends FragmentPagerAdapter{
 
-        List<Fragment> fragments;
-
-        public FragmentAdapter(FragmentManager fm, List<Fragment> fragments) {
+        public FragmentAdapter(FragmentManager fm) {
             super(fm);
-            this.fragments = fragments;
         }
 
         @Override
         public Fragment getItem(int position) {
-            return fragments.get(position);
+            return BlankFragment.newInstance("Page "+ position);
         }
 
         @Override
         public int getCount() {
-            return fragments.size();
+            return 2;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return "Page " + (position + 1);
         }
     }
 
