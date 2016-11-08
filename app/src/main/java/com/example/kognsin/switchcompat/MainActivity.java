@@ -25,8 +25,8 @@ public class MainActivity extends AppCompatActivity {
 
         obSwitchCompat = (ObSwitchCompat) findViewById(R.id.obSwitchCompat);
         obSwitchCompat.setTrackHeight(45);
-        obSwitchCompat.setThrumbHeight(45);
-        obSwitchCompat.setThrumbWidth(100);
+        obSwitchCompat.setThumbHeight(45);
+        obSwitchCompat.setThumbWidth(100);
         obSwitchCompat.setTrackColor(Color.WHITE);
         obSwitchCompat.setupWithViewPager(pager);
     }
