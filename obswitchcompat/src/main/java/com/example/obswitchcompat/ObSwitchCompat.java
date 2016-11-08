@@ -170,6 +170,14 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         return trackTextColor;
     }
 
+    public int getCurrentPosition(){
+        if (mPager != null) {
+            return mPager.getCurrentItem();
+        } else {
+            return 0;
+        }
+    }
+
     public ObSwitchCompat(Context context) {
         super(context);
         initView();
