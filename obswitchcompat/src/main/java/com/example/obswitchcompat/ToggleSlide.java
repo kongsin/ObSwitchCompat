@@ -17,11 +17,15 @@ public class ToggleSlide implements GestureDetector.OnGestureListener {
     private float start, end;
     private static final String TAG = "ToggleSlide";
     private GesturCallBack mGesturCallBack;
+    private float tabSize = 0;
+    private int tabCount = 0;
 
-    public ToggleSlide(View view, final float start, final float end, GesturCallBack gesturCallBack){
+    public ToggleSlide(final View view, final float start, final float end, int tabSize, int tabCount, GesturCallBack gesturCallBack){
         this.mView = view;
         this.start = start;
         this.end = end;
+        this.tabCount = tabCount;
+        this.tabSize = tabSize;
         this.mGesturCallBack = gesturCallBack;
         gestureDetector = new GestureDetectorCompat(view.getContext(), this);
         view.setOnTouchListener(new View.OnTouchListener() {
@@ -29,15 +33,22 @@ public class ToggleSlide implements GestureDetector.OnGestureListener {
             public boolean onTouch(View v, MotionEvent event) {
                 gestureDetector.onTouchEvent(event);
                 if (event.getAction() == MotionEvent.ACTION_UP){
-                    if (mView.getX() < ((start + end) / 2)) {
-                        mGesturCallBack.left();
-                    } else {
-                        mGesturCallBack.right();
-                    }
+                    setPosition(view);
                 }
                 return true;
             }
         });
+    }
+
+    private void setPosition(View view) {
+        for (int count = tabCount - 1; count >= 0; count--) {
+            int pos = (int) view.getX();
+            int tabPos = (int) ((tabSize * count) - (tabSize / 2));
+            if ( pos >= tabPos){
+                mGesturCallBack.onSelectedPage(count);
+                break;
+            }
+        }
     }
 
     @Override
@@ -76,8 +87,7 @@ public class ToggleSlide implements GestureDetector.OnGestureListener {
     }
 
     public interface GesturCallBack{
-        void left();
-        void right();
+        void onSelectedPage(int index);
         void onScroll(float posX);
     }
 }
