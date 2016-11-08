@@ -10,9 +10,6 @@ import android.os.Bundle;
 
 import com.example.obswitchcompat.ObSwitchCompat;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MainActivity extends AppCompatActivity {
     ViewPager pager;
     ObSwitchCompat obSwitchCompat;
@@ -27,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         pager.setCurrentItem(0);
 
         obSwitchCompat = (ObSwitchCompat) findViewById(R.id.obSwitchCompat);
-        obSwitchCompat.setTrackColor(Color.GREEN);
+        obSwitchCompat.setTrackColor(Color.WHITE);
         obSwitchCompat.setupWithViewPager(pager);
     }
 
@@ -44,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 2;
+            return 4;
         }
 
         @Override

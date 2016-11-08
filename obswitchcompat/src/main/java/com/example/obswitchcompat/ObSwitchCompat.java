@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
+import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -60,6 +61,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     private int thrumbTextColor = Color.WHITE;
     private int thrumbWidth = DEFAULT_THRUMB_WIDTH;
     private int thrumbHeight = DEFAULT_THRUMB_HEIGHT;
+    private float currentScrollX = 0;
 
     private int cornerRadians = 50;
 
@@ -167,9 +169,8 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
             if (positionOffset > 0){
-                setCurrentTab(positionOffset);
+                setCurrentTab(positionOffset, position);
             } else {
-                setCurrentTab(currentPosition);
                 if (!checked) {
                     mPager.post(new Runnable() {
                         @Override
@@ -188,7 +189,6 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
                 public void run() {
                     mThumbView.setText(getPageTitle(position));
                     currentPosition = position;
-                    setCurrentTab(position);
                 }
             });
         }
@@ -216,10 +216,26 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         }
     }
 
-    public void setCurrentTab(float currentPosition){
-        if (mTabCount > 0) {
-            mThumbView.setX((mainLayout.getX() + mainLayout.getPaddingLeft()) + (((mainLayout.getWidth() / mTabCount) - mainLayout.getPaddingLeft() - mainLayout.getPaddingRight()) * currentPosition));
-        }
+    public void setCurrentTab(final float offset, final int position){
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                if (mTabCount > 0) {
+                    if (position > 0 || offset > 0) {
+                        int w = mThumbView.getWidth();
+                        float newScroll = w * offset;
+                        int startFrom = 0;
+                        if (position > 0) {
+                            startFrom = w * position;
+                        }
+                        if (newScroll != currentScrollX) {
+                            mThumbView.setX(newScroll + startFrom);
+                            currentScrollX = newScroll;
+                        }
+                    }
+                }
+            }
+        });
     }
 
     public void initView(AttributeSet attrs){
@@ -281,7 +297,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
 
     private void initMainLayout() {
         mainLayout.setPadding(parseDP(1), parseDP(1), parseDP(1), parseDP(1));
-        mainLayout.getLayoutParams().width = parseDP(trackWidth);
+        mainLayout.getLayoutParams().width = parseDP(thrumbWidth * mTabCount);
         mainLayout.getLayoutParams().height = parseDP(trackHeight);
     }
 
@@ -296,12 +312,12 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
             mPager.post(new Runnable() {
                 @Override
                 public void run() {
-                    setCurrentTab(mPager.getCurrentItem());
+                    setCurrentTab(mPager.getCurrentItem(), currentPosition);
                     setThumbText(getPageTitle(currentPosition));
                 }
             });
         } else {
-            setCurrentTab(currentPosition);
+            setCurrentTab(currentPosition, currentPosition);
         }
     }
 
@@ -327,38 +343,30 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
             public void left() {
                 if (currentPosition == 0){
                     currentPosition = 0;
-                    setCurrentTab(0);
                     mThumbView.setText(getPageTitle(0));
                     pageScroll(0);
-                    mPager.setCurrentItem(0, false);
+                    mPager.setCurrentItem(0, true);
                 } else {
                     currentPosition = currentPosition - 1;
-                    setCurrentTab(currentPosition);
                     mThumbView.setText(getPageTitle(currentPosition));
                     pageScroll(currentPosition * mPager.getWidth());
-                    mPager.setCurrentItem(currentPosition, false);
+                    mPager.setCurrentItem(currentPosition, true);
                 }
-
             }
 
             @Override
             public void right() {
-
                 if (currentPosition >= mPager.getAdapter().getCount() -1){
                     currentPosition = mPager.getAdapter().getCount() - 1;
-                    setCurrentTab(currentPosition);
                     mThumbView.setText(getPageTitle(currentPosition));
                     scrollWidthFixedWrongPosition(currentPosition * mPager.getWidth());
-                    mPager.setCurrentItem(currentPosition, false);
+                    mPager.setCurrentItem(currentPosition, true);
                 } else {
                     currentPosition = currentPosition + 1;
-                    setCurrentTab(currentPosition);
                     mThumbView.setText(getPageTitle(currentPosition));
                     scrollWidthFixedWrongPosition(currentPosition * mPager.getWidth());
-                    mPager.setCurrentItem(currentPosition, false);
+                    mPager.setCurrentItem(currentPosition, true);
                 }
-
-
             }
 
             @Override
@@ -469,7 +477,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     public void onClick(View v) {
         if (v instanceof TextView){
             int position = (int) v.getTag();
-            setCurrentTab(position);
+            setCurrentTab(position, position);
             currentPosition = position;
             mPager.setCurrentItem(currentPosition, true);
         }
