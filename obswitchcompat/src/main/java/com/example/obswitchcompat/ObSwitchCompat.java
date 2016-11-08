@@ -142,7 +142,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
 
     public void setTrackTextColor(int trackTextColor) {
         this.trackTextColor = trackTextColor;
-        invalidateView();
+        initTrack();
     }
 
     public int getTrackTextColor() {
