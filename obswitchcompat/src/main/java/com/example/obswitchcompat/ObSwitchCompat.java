@@ -10,6 +10,7 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -102,6 +103,26 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
 
     public int getTrackStokeWidth() {
         return trackStokeWidth;
+    }
+
+    public void setTrackWidth(int trackWidth) {
+        this.trackWidth = trackWidth;
+        initTrack();
+    }
+
+    public void setTrackHeight(int trackHeight) {
+        this.trackHeight = trackHeight;
+        initTrack();
+    }
+
+    public void setThrumbWidth(int thrumbWidth) {
+        this.thrumbWidth = thrumbWidth;
+        initThumbView();
+    }
+
+    public void setThrumbHeight(int thrumbHeight) {
+        this.thrumbHeight = thrumbHeight;
+        initThumbView();
     }
 
     public void setThumbColor(int thrumbColor) {
@@ -216,9 +237,10 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     }
 
     public void setCurrentTab(final float offset, final int position){
+        Log.i(TAG, "setCurrentTab: " + offset);
         if (mTabCount > 0) {
-            int w = mThumbView.getWidth();
-            int newScroll = (int) (w * offset);
+            float w = mThumbView.getWidth();
+            float newScroll = (int) (w * offset);
             float startFrom = 0;
             if (position == 0){
                 startFrom += mainLayout.getPaddingLeft();
@@ -442,7 +464,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
 
     private int parseDP(int dp){
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, displayMetrics);
     }
 
     @Override

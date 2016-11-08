@@ -24,6 +24,9 @@ public class MainActivity extends AppCompatActivity {
         pager.setCurrentItem(0);
 
         obSwitchCompat = (ObSwitchCompat) findViewById(R.id.obSwitchCompat);
+        obSwitchCompat.setTrackHeight(45);
+        obSwitchCompat.setThrumbHeight(45);
+        obSwitchCompat.setThrumbWidth(100);
         obSwitchCompat.setTrackColor(Color.WHITE);
         obSwitchCompat.setupWithViewPager(pager);
     }
@@ -41,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 4;
+            return 3;
         }
 
         @Override
