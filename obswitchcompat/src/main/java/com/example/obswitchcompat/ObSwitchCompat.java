@@ -196,17 +196,14 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     private ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            if (positionOffset > 0) {
-                setCurrentTab(positionOffset, position);
-            } else {
-                if (!checked) {
-                    mPager.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            checkScrollType();
-                        }
-                    });
-                }
+            setCurrentTab(positionOffset, position);
+            if (!checked) {
+                mPager.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        checkScrollType();
+                    }
+                });
             }
         }
 
@@ -217,6 +214,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
                 public void run() {
                     mThumbView.setText(getPageTitle(position));
                     currentPosition = position;
+                    setCurrentTab(0, position);
                 }
             });
         }
@@ -245,17 +243,21 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     }
 
     public void setCurrentTab(final float offset, final int position){
-        Log.i(TAG, "setCurrentTab: " + offset);
+
         if (mTabCount > 0) {
             float w = mThumbView.getWidth();
             float newScroll = (int) (w * offset);
-            float startFrom = 0;
-            if (position == 0){
-                startFrom += mainLayout.getPaddingLeft();
-            } else {
-                startFrom = (w * position) - mainLayout.getPaddingRight();
-            }
+            float startFrom = (w * position);
             newScroll += startFrom;
+
+            if (newScroll > ((mainLayout.getWidth() - mThumbView.getWidth()) - mainLayout.getPaddingRight())){
+                newScroll = ((mainLayout.getWidth() - mThumbView.getWidth()) - mainLayout.getPaddingRight());
+            }
+
+            if (newScroll < mainLayout.getPaddingLeft()) {
+                newScroll += mainLayout.getPaddingLeft();
+            }
+
             mThumbView.setX(newScroll);
             currentPosition = position;
         }

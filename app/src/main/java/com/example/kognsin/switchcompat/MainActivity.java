@@ -24,8 +24,8 @@ public class MainActivity extends AppCompatActivity {
         pager.setCurrentItem(0);
 
         obSwitchCompat = (ObSwitchCompat) findViewById(R.id.obSwitchCompat);
-        obSwitchCompat.setTrackHeight(45);
-        obSwitchCompat.setThumbHeight(45);
+        obSwitchCompat.setTrackHeight(40);
+        obSwitchCompat.setThumbHeight(40);
         obSwitchCompat.setThumbWidth(100);
         obSwitchCompat.setTrackColor(Color.WHITE);
         obSwitchCompat.setupWithViewPager(pager);
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return BlankFragment.newInstance("Page "+ position);
+            return BlankFragment.newInstance("Page "+ (position + 1));
         }
 
         @Override
