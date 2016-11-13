@@ -18,9 +18,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        FragmentAdapter mFragmentAdapter = new FragmentAdapter(getSupportFragmentManager());
         pager = (ViewPager) findViewById(R.id.pager);
-        pager.setAdapter(new FragmentAdapter(getSupportFragmentManager()));
+        pager.setAdapter(mFragmentAdapter);
+        pager.setOffscreenPageLimit(mFragmentAdapter.getCount());
         pager.setCurrentItem(0);
 
         obSwitchCompat = (ObSwitchCompat) findViewById(R.id.obSwitchCompat);
