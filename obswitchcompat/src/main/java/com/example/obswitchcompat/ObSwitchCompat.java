@@ -226,10 +226,14 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     };
 
     private String getPageTitle(int position){
-        if (mPager != null){
-            return mPager.getAdapter().getPageTitle(position).toString();
+        if (isInEditMode()){
+            return "TAB" + position;
         } else {
-            return "";
+            if (mPager != null) {
+                return mPager.getAdapter().getPageTitle(position).toString();
+            } else {
+                return "";
+            }
         }
     }
 
@@ -281,6 +285,9 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
 
     private void invalidateView(){
         checked = false;
+        if (isInEditMode()){
+            mTabCount = 2;
+        }
         initMainLayout();
         initTrack();
         initTitle();
@@ -291,10 +298,6 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
             setThumbText("TAB"+currentPosition);
         } else {
             setThumbText(getPageTitle(currentPosition));
-        }
-
-        if (isInEditMode()) {
-            setThumbText("TAB1");
         }
 
         setThumbMoveable();
