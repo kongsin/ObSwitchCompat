@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.DimenRes;
+import android.support.annotation.IntegerRes;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -30,44 +32,60 @@ import java.util.List;
 @RemoteViews.RemoteView
 public class ObSwitchCompat extends LinearLayout implements View.OnClickListener {
 
-    private final int DEFAULT_TRACK_WIDTH = 160;
-    private final int DEFAULT_TRACK_HEIGHT = 30;
+    private final int DEFAULT_TRACK_WIDTH       = 160;
+    private final int DEFAULT_TRACK_HEIGHT      = 30;
 
-    private final int DEFAULT_THRUMB_WIDTH = 80;
-    private final int DEFAULT_THRUMB_HEIGHT = 30;
+    private final int DEFAULT_THUMB_WIDTH       = 80;
+    private final int DEFAULT_THRUMB_HEIGHT     = 30;
 
-    private final int DEFAULT_STROKE_WIDTH = 1;
+    private final int DEFAULT_PADDING           = 1;
+
+    private final int DEFAULT_STROKE_WIDTH      = 1;
 
     private RelativeLayout mainLayout;
     private LinearLayout titleLayout;
-    private List<TextView> titleViews = new ArrayList<>();
+    private List<TextView> titleViews           = new ArrayList<>();
     private int mTabCount = 0;
     private TextView mThumbView;
-    private static final String TAG = "ObSwitchCompat";
-    private int currentPosition = 0;
-    private boolean isScrollNormal = true;
-    private boolean checked = false;
-    private int titleTextSize = 14;
+    private static final String TAG             = "ObSwitchCompat";
+    private int currentPosition                 = 0;
+    private boolean isScrollNormal              = true;
+    private boolean checked                     = false;
+    private int titleTextSize                   = -1;
 
-    private int trackColor = Color.WHITE;
-    private int trackStokeColor = Color.GRAY;
-    private int trackStokeWidth = DEFAULT_STROKE_WIDTH;
-    private int trackTextColor = Color.GRAY;
-    private int trackWidth = DEFAULT_TRACK_WIDTH;
-    private int trackHeight = DEFAULT_TRACK_HEIGHT;
+    private int trackColor                      = Color.WHITE;
+    private int trackStokeColor                 = Color.GRAY;
+    private int trackStokeWidth                 = -1;
+    private int trackTextColor                  = Color.GRAY;
+    private int trackWidth                      = -1;
+    private int trackHeight                     = -1;
 
-    private int thumbColor = Color.GRAY;
-    private int thumbStokeColor = Color.WHITE;
-    private int thumbStokeWidth = DEFAULT_STROKE_WIDTH;
-    private int thumbTextColor = Color.WHITE;
-    private int thumbWidth = DEFAULT_THRUMB_WIDTH;
-    private int thumbHeight = DEFAULT_THRUMB_HEIGHT;
+    private int thumbColor                      = Color.GRAY;
+    private int thumbStokeColor                 = Color.WHITE;
+    private int thumbStokeWidth                 = -1;
+    private int thumbTextColor                  = Color.WHITE;
+    private int thumbWidth                      = -1;
+    private int thumbHeight                     = -1;
+    private int trackPadding                    = -1;
+    private int[] thumbPadding;
 
-    private int cornerRadians = 50;
+    private int cornerRadians                   = -1;
 
     private ViewPager mPager;
     private Drawable trackDrawable;
     private Drawable thumbDrawable;
+
+    public void setThumbPadding(int[] thumbPadding) {
+        if (thumbPadding != null && thumbPadding.length != 4) {
+            throw new Error("Thumb padding length must be 4 : [left][top][right][bottom]");
+        } else {
+            this.thumbPadding = thumbPadding;
+        }
+    }
+
+    public int[] getThumbPadding() {
+        return thumbPadding == null ? thumbPadding = new int[]{parseDP(4), parseDP(2), parseDP(4), parseDP(2)} : thumbPadding; // left top right bottom
+    }
 
     public void setCornerRadians(int cornerRadians) {
         this.cornerRadians = cornerRadians;
@@ -75,12 +93,20 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     }
 
     public int getCornerRadians() {
-        return cornerRadians;
+        return cornerRadians == -1 ? parseDP(cornerRadians = 50) : cornerRadians;
     }
 
     public void setTrackColor(int trackColor) {
         this.trackColor = trackColor;
         initTrack();
+    }
+
+    public void setTrackPadding(int trackPadding){
+        this.trackPadding = trackPadding;
+    }
+
+    public int getTrackPadding() {
+        return trackPadding == -1 ? parseDP(trackPadding = DEFAULT_PADDING) : trackPadding;
     }
 
     public int getTrackColor() {
@@ -102,7 +128,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     }
 
     public int getTrackStokeWidth() {
-        return trackStokeWidth;
+        return trackStokeWidth == -1 ? parseDP(trackStokeWidth = DEFAULT_STROKE_WIDTH) : trackStokeWidth;
     }
 
     public void setTrackWidth(int trackWidth) {
@@ -110,9 +136,17 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         initTrack();
     }
 
+    public int getTrackWidth() {
+        return trackWidth == -1 ? parseDP(trackWidth = DEFAULT_TRACK_WIDTH) : trackWidth;
+    }
+
     public void setTrackHeight(int trackHeight) {
         this.trackHeight = trackHeight;
         initTrack();
+    }
+
+    public int getTrackHeight() {
+        return trackHeight == -1 ? parseDP(trackHeight = DEFAULT_TRACK_HEIGHT) : trackHeight;
     }
 
     public void setThumbWidth(int thumbWidth) {
@@ -120,9 +154,25 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         initThumbView();
     }
 
+    public int getThumbWidth() {
+        return thumbWidth == -1 ? parseDP(thumbWidth = DEFAULT_THUMB_WIDTH) : thumbWidth;
+    }
+
     public void setThumbHeight(int thumbHeight) {
         this.thumbHeight = thumbHeight;
         initThumbView();
+    }
+
+    public int getThumbHeight() {
+        return thumbHeight == -1 ? parseDP(thumbHeight = DEFAULT_THRUMB_HEIGHT) : thumbHeight;
+    }
+
+    public void setTitleTextSize(int val){
+        this.titleTextSize = val;
+    }
+
+    public int getTitleTextSize() {
+        return titleTextSize == -1 ? parseDP(titleTextSize = 14) : titleTextSize;
     }
 
     public void setThumbColor(int thumbColor) {
@@ -140,7 +190,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     }
 
     public int getThumbStokeWidth() {
-        return thumbStokeWidth;
+        return thumbStokeWidth == -1 ? parseDP(thumbStokeWidth = DEFAULT_STROKE_WIDTH) : thumbStokeWidth;
     }
 
     public void setThumbStokeColor(int thumbStokeColor) {
@@ -324,9 +374,9 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     }
 
     private void initMainLayout() {
-        mainLayout.setPadding(parseDP(1), parseDP(1), parseDP(1), parseDP(1));
-        mainLayout.getLayoutParams().width = parseDP(thumbWidth * mTabCount);
-        mainLayout.getLayoutParams().height = parseDP(trackHeight);
+        mainLayout.setPadding(getTrackPadding(), getTrackPadding(), getTrackPadding(), getTrackPadding());
+        mainLayout.getLayoutParams().width = (getThumbWidth() * mTabCount);
+        mainLayout.getLayoutParams().height = getTrackHeight();
     }
 
     public void initThumbView(){
@@ -366,7 +416,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     public void setThumbMoveable() {
         int[] posXY = new int[2];
         mainLayout.getLocationOnScreen(posXY);
-        new ToggleSlide(mThumbView, posXY[0] + mainLayout.getPaddingLeft(), ((parseDP(thumbWidth) * mTabCount) - mainLayout.getPaddingRight()) - parseDP(thumbWidth), parseDP(thumbWidth), mTabCount, new ToggleSlide.GesturCallBack() {
+        new ToggleSlide(mThumbView, posXY[0] + mainLayout.getPaddingLeft(), ((getThumbWidth() * mTabCount) - mainLayout.getPaddingRight()) - getThumbWidth(), getThumbWidth(), mTabCount, new ToggleSlide.GesturCallBack() {
 
             @Override
             public void onSelectedPage(int index) {
@@ -400,35 +450,33 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
 
     private List<TextView> getTitleViews(){
 
-        LinearLayout.LayoutParams params = new LayoutParams(0, parseDP(30));
+        LinearLayout.LayoutParams params = new LayoutParams(0, getTrackHeight());
         params.weight = 1;
         params.gravity = Gravity.CENTER;
-
+        int[] padding = getThumbPadding();
         for (int i = 0; i < mTabCount; i++) {
             TextView textView = new TextView(getContext());
-            textView.setPadding(parseDP(4), parseDP(2), parseDP(4), parseDP(2));
+            textView.setPadding(padding[0], padding[1], padding[2], padding[3]);
             textView.setLayoutParams(params);
             textView.setText(getPageTitle(i));
             textView.setGravity(Gravity.CENTER);
             textView.setOnClickListener(this);
-            textView.setTextSize(this.titleTextSize);
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTitleTextSize());
             textView.setTag(i);
             titleViews.add(textView);
         }
         return titleViews;
     }
 
-    public void setTitleTextSize(int val){
-        this.titleTextSize = parseDP(val);
-    }
-
     private TextView getThumbView(){
-
+        int[] padding = getThumbPadding();
         mThumbView = new TextView(getContext());
         mThumbView.setGravity(Gravity.CENTER);
         mThumbView.setTextColor(Color.WHITE);
-        mThumbView.setWidth(parseDP(thumbWidth));
-        mThumbView.setHeight(parseDP(thumbHeight));
+        mThumbView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTitleTextSize());
+        mThumbView.setPadding(padding[0], padding[1], padding[2], padding[3]);
+        mThumbView.setWidth(getThumbWidth());
+        mThumbView.setHeight(getThumbHeight());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             mThumbView.setBackground(thumbDrawable != null ? thumbDrawable : getThumb());
@@ -446,21 +494,21 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     private Drawable getTrack(){
         GradientDrawable trackDrawable = new GradientDrawable();
         trackDrawable.setColor(trackColor);
-        trackDrawable.setStroke(parseDP(trackStokeWidth), trackStokeColor);
-        trackDrawable.setCornerRadius(parseDP(cornerRadians));
-        trackDrawable.setSize(parseDP(trackWidth), parseDP(trackHeight));
+        trackDrawable.setStroke(getTrackStokeWidth(), trackStokeColor);
+        trackDrawable.setCornerRadius(getCornerRadians());
+        trackDrawable.setSize(getTrackWidth(), getTrackHeight());
         trackDrawable.setShape(GradientDrawable.RECTANGLE);
-        trackDrawable.setBounds(parseDP(0), parseDP(0), parseDP(trackWidth), parseDP(trackHeight));
+        trackDrawable.setBounds(0, 0, getTrackWidth(), getTrackHeight());
         return trackDrawable;
     }
 
     private Drawable getThumb(){
         GradientDrawable thumbDrawable = new GradientDrawable();
-        thumbDrawable.setColor(thumbColor);
-        thumbDrawable.setStroke(parseDP(thumbStokeWidth), thumbStokeColor);
-        thumbDrawable.setCornerRadius(parseDP(cornerRadians));
-        thumbDrawable.setSize(parseDP(thumbWidth), parseDP(thumbHeight));
-        thumbDrawable.setBounds(parseDP(0), parseDP(0), parseDP(thumbWidth), parseDP(thumbHeight));
+        thumbDrawable.setColor(getThumbColor());
+        thumbDrawable.setStroke(getThumbStokeWidth(), getThumbStokeColor());
+        thumbDrawable.setCornerRadius(getCornerRadians());
+        thumbDrawable.setSize(getThumbWidth(), getThumbHeight());
+        thumbDrawable.setBounds(0, 0, getThumbWidth(), getThumbHeight());
         thumbDrawable.setShape(GradientDrawable.RECTANGLE);
         return thumbDrawable;
     }

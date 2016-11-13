@@ -24,9 +24,11 @@ public class MainActivity extends AppCompatActivity {
         pager.setCurrentItem(0);
 
         obSwitchCompat = (ObSwitchCompat) findViewById(R.id.obSwitchCompat);
-        obSwitchCompat.setTrackHeight(40);
-        obSwitchCompat.setThumbHeight(40);
-        obSwitchCompat.setThumbWidth(100);
+        obSwitchCompat.setTrackHeight(getResources().getDimensionPixelSize(R.dimen.track_height));
+        obSwitchCompat.setThumbHeight(getResources().getDimensionPixelSize(R.dimen.thumb_height));
+        obSwitchCompat.setThumbWidth(getResources().getDimensionPixelSize(R.dimen.thumb_width));
+        obSwitchCompat.setTrackStokeWidth(getResources().getDimensionPixelSize(R.dimen.stoke));
+        obSwitchCompat.setTrackPadding(getResources().getDimensionPixelSize(R.dimen.stoke));
         obSwitchCompat.setTrackColor(Color.WHITE);
         obSwitchCompat.setupWithViewPager(pager);
     }
