@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Random;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -51,12 +53,13 @@ public class BlankFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_blank, container, false);
         TextView textView = (TextView) view.findViewById(R.id.tv);
         textView.setText(p);
-        if (p.equals("Page 1")){
-            view.setBackgroundColor(Color.BLUE);
-        } else {
-            view.setBackgroundColor(Color.RED);
-        }
+        view.setBackgroundColor(colorRandomed());
         return view;
+    }
+
+    private int colorRandomed(){
+        int[] colors = new int[] {Color.RED, Color.GRAY, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA};
+        return colors[new Random().nextInt(colors.length - 1)];
     }
 
 }
