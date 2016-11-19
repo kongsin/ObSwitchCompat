@@ -355,11 +355,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
 
     private void checkScrollType(){
         if (mPager != null && !checked){
-            if (mPager.getScrollX() != currentPosition * mPager.getWidth()){
-                isScrollNormal = false;
-            } else {
-                isScrollNormal = true;
-            }
+            isScrollNormal = mPager.getScrollX() == currentPosition * mPager.getWidth();
             checked = true;
         }
     }
