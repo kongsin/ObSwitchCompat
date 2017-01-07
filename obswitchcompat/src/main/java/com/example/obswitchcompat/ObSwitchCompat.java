@@ -49,6 +49,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     private boolean isScrollNormal              = true;
     private boolean checked                     = false;
     private int titleTextSize                   = -1;
+    private float tabAlpha                      = 0.6F;
 
     private int trackColor                      = Color.WHITE;
     private int trackStokeColor                 = Color.GRAY;
@@ -212,6 +213,14 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     public void setTrackTextColor(int trackTextColor) {
         this.trackTextColor = trackTextColor;
         initTrack();
+    }
+
+    public void setTabAlpha(float tabAlpha) {
+        this.tabAlpha = tabAlpha;
+    }
+
+    public float getTabAlpha() {
+        return tabAlpha;
     }
 
     public int getTrackTextColor() {
@@ -462,6 +471,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
             textView.setPadding(padding[0], padding[1], padding[2], padding[3]);
             textView.setLayoutParams(params);
             textView.setText(getPageTitle(i));
+            textView.setAlpha(tabAlpha);
             textView.setImageDrawable(getTabDrawable(i));
             textView.setGravity(Gravity.CENTER);
             textView.setOnClickListener(this);

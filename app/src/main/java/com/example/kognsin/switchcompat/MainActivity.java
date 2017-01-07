@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         obSwitchCompat.setThumbHeight(getResources().getDimensionPixelSize(R.dimen.thumb_height));
         obSwitchCompat.setThumbWidth(getResources().getDimensionPixelSize(R.dimen.thumb_width));
         obSwitchCompat.setThumbColor(android.R.color.transparent);
-        obSwitchCompat.setThumbStokeWidth(0) ;
+        obSwitchCompat.setThumbStokeWidth(0);
         obSwitchCompat.setTrackStokeWidth(0);
         obSwitchCompat.setTrackPadding(0);
         obSwitchCompat.setTrackColor(Color.WHITE);
