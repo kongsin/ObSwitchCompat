@@ -1,6 +1,7 @@
 package com.example.kognsin.switchcompat;
 
 import android.graphics.Color;
+import android.support.annotation.DrawableRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -9,6 +10,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.example.obswitchcompat.ObSwitchCompat;
+import com.example.obswitchcompat.ObSwitchCompatIconAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     ViewPager pager;
@@ -24,13 +29,26 @@ public class MainActivity extends AppCompatActivity {
         pager.setOffscreenPageLimit(mFragmentAdapter.getCount());
         pager.setCurrentItem(0);
 
+        List<Integer> icons = new ArrayList<>();
+        icons.add(android.R.drawable.ic_dialog_info);
+        icons.add(android.R.drawable.ic_dialog_dialer);
+        icons.add(android.R.drawable.ic_dialog_alert);
+        icons.add(android.R.drawable.ic_dialog_email);
+        icons.add(android.R.drawable.ic_dialog_map);
+        IconAdapter iconAdapter = new IconAdapter(icons);
+
         obSwitchCompat = (ObSwitchCompat) findViewById(R.id.obSwitchCompat);
         obSwitchCompat.setTrackHeight(getResources().getDimensionPixelSize(R.dimen.track_height));
         obSwitchCompat.setThumbHeight(getResources().getDimensionPixelSize(R.dimen.thumb_height));
         obSwitchCompat.setThumbWidth(getResources().getDimensionPixelSize(R.dimen.thumb_width));
-        obSwitchCompat.setTrackStokeWidth(getResources().getDimensionPixelSize(R.dimen.stoke));
-        obSwitchCompat.setTrackPadding(getResources().getDimensionPixelSize(R.dimen.stoke));
+        obSwitchCompat.setThumbColor(android.R.color.transparent);
+        obSwitchCompat.setThumbStokeWidth(0) ;
+        obSwitchCompat.setTrackStokeWidth(0);
+        obSwitchCompat.setTrackPadding(0);
         obSwitchCompat.setTrackColor(Color.WHITE);
+        obSwitchCompat.setTrackStokeColor(Color.WHITE);
+
+        obSwitchCompat.setTabIcon(iconAdapter);
         obSwitchCompat.setupWithViewPager(pager);
     }
 
@@ -42,17 +60,36 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return BlankFragment.newInstance("Page "+ (position + 1));
+            return BlankFragment.newInstance("P."+ (position + 1));
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return 5;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return "Page " + (position + 1);
+            return "";
+        }
+    }
+
+    public class IconAdapter implements ObSwitchCompatIconAdapter {
+
+        private List<Integer> mIcons = new ArrayList<>();
+
+        public IconAdapter(List<Integer> icons) {
+            this.mIcons = icons;
+        }
+
+        @Override
+        public int getTabIcon(int position) {
+            return mIcons.get(position);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mIcons.size();
         }
     }
 

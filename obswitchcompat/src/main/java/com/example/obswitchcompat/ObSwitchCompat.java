@@ -5,13 +5,10 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
-import android.os.Handler;
-import android.support.annotation.DimenRes;
-import android.support.annotation.IntegerRes;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -46,7 +43,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     private LinearLayout titleLayout;
     private List<TextView> titleViews           = new ArrayList<>();
     private int mTabCount = 0;
-    private TextView mThumbView;
+    private ObSwitchCompatTab mThumbView;
     private static final String TAG             = "ObSwitchCompat";
     private int currentPosition                 = 0;
     private boolean isScrollNormal              = true;
@@ -74,6 +71,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     private ViewPager mPager;
     private Drawable trackDrawable;
     private Drawable thumbDrawable;
+    private ObSwitchCompatIconAdapter mTabIcons;
 
     public void setThumbPadding(int[] thumbPadding) {
         if (thumbPadding != null && thumbPadding.length != 4) {
@@ -262,7 +260,8 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
             mPager.post(new Runnable() {
                 @Override
                 public void run() {
-                    mThumbView.setText(getPageTitle(position));
+                    setThumbText(getPageTitle(position));
+                    setThumbIcon();
                     currentPosition = position;
                     setCurrentTab(0, position);
                 }
@@ -312,7 +311,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
                 newScroll += mainLayout.getPaddingLeft();
             }
 
-            mThumbView.setX(newScroll);
+            mThumbView.animate().x(Math.abs(newScroll)).setDuration(0).start();
             currentPosition = position;
         }
     }
@@ -348,6 +347,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
             setThumbText("TAB"+currentPosition);
         } else {
             setThumbText(getPageTitle(currentPosition));
+            setThumbIcon();
         }
 
         setThumbMoveable();
@@ -388,6 +388,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
                 public void run() {
                     setCurrentTab(mPager.getCurrentItem(), currentPosition);
                     setThumbText(getPageTitle(currentPosition));
+                    setThumbIcon();
                 }
             });
         } else {
@@ -409,6 +410,11 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
 
     }
 
+    public void setTabIcon(ObSwitchCompatIconAdapter tabIcon){
+        this.mTabIcons = tabIcon;
+        invalidate();
+    }
+
     public void setThumbMoveable() {
         int[] posXY = new int[2];
         mainLayout.getLocationOnScreen(posXY);
@@ -416,7 +422,8 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
 
             @Override
             public void onSelectedPage(int index) {
-                mThumbView.setText(getPageTitle(index));
+                setThumbText(getPageTitle(index));
+                setThumbIcon();
                 scrollWidthFixedWrongPosition(index * mPager.getWidth());
                 mPager.setCurrentItem(index, true);
                 setCurrentTab(0, index);
@@ -451,10 +458,11 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         params.gravity = Gravity.CENTER;
         int[] padding = getThumbPadding();
         for (int i = 0; i < mTabCount; i++) {
-            TextView textView = new TextView(getContext());
+            ObSwitchCompatTab textView = new ObSwitchCompatTab(getContext());
             textView.setPadding(padding[0], padding[1], padding[2], padding[3]);
             textView.setLayoutParams(params);
             textView.setText(getPageTitle(i));
+            textView.setImageDrawable(getTabDrawable(i));
             textView.setGravity(Gravity.CENTER);
             textView.setOnClickListener(this);
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTitleTextSize());
@@ -464,9 +472,16 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         return titleViews;
     }
 
+    private Drawable getTabDrawable(int i) {
+        if (mTabIcons != null && mTabIcons.getItemCount() > i){
+            return ContextCompat.getDrawable(getContext(), mTabIcons.getTabIcon(i));
+        }
+        return null;
+    }
+
     private TextView getThumbView(){
         int[] padding = getThumbPadding();
-        mThumbView = new TextView(getContext());
+        mThumbView = new ObSwitchCompatTab(getContext());
         mThumbView.setGravity(Gravity.CENTER);
         mThumbView.setTextColor(Color.WHITE);
         mThumbView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTitleTextSize());
@@ -485,6 +500,16 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
 
     public void setThumbText(String text){
         mThumbView.setText(text);
+    }
+
+    private void setThumbIcon(){
+        mThumbView.post(new Runnable() {
+            @Override
+            public void run() {
+                mThumbView.setImageDrawable(getTabDrawable(getCurrentPosition()));
+                mThumbView.invalidate();
+            }
+        });
     }
 
     private Drawable getTrack(){

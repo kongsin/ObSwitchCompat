@@ -5,8 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/ObSwitchCompat.iml" filepath="$PROJECT_DIR$/ObSwitchCompat.iml" />
       <module fileurl="file://$PROJECT_DIR$/SwitchCompat.iml" filepath="$PROJECT_DIR$/SwitchCompat.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/obswitchcompat/obswitchcompat.iml" filepath="$PROJECT_DIR$/obswitchcompat/obswitchcompat.iml" />
       <module fileurl="file://$PROJECT_DIR$/obswitchcompat/obswitchcompat.iml" filepath="$PROJECT_DIR$/obswitchcompat/obswitchcompat.iml" />
     </modules>
   </component>
