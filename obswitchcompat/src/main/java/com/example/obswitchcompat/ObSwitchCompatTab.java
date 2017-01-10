@@ -1,9 +1,7 @@
 package com.example.obswitchcompat;
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 
 /**
@@ -12,31 +10,49 @@ import android.util.AttributeSet;
 
 public class ObSwitchCompatTab extends android.support.v7.widget.AppCompatTextView {
 
-    private Drawable mImage = null;
+    private int iconPadding;
 
     public ObSwitchCompatTab(Context context) {
         super(context);
     }
 
-    public ObSwitchCompatTab(Context context, @Nullable AttributeSet attrs) {
+    public ObSwitchCompatTab(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public ObSwitchCompatTab(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public ObSwitchCompatTab(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        if (mImage != null){
-            mImage.setBounds((int)(getHeight() * 0.2F), (int)(getHeight() * 0.2F), (int)(getHeight() * 0.8F), (int)(getHeight() * 0.8F));
-            mImage.draw(canvas);
-        }
+    public enum ImagePosition {
+        LEFT,TOP,RIGHT,BOTTOM
+    }
+
+    public void setImageIconPadding(int inset){
+        iconPadding = inset;
+        setCompoundDrawablePadding(iconPadding);
     }
 
     public void setImageDrawable(Drawable img) {
-        mImage = img;
+        setImageDrawable(img, ImagePosition.TOP);
+    }
+
+    public void setImageDrawable(Drawable img, ImagePosition imagePosition) {
+        switch (imagePosition) {
+            case LEFT:
+                setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
+                break;
+            case TOP:
+                setCompoundDrawablesWithIntrinsicBounds(null, img, null, null);
+                break;
+            case RIGHT:
+                setCompoundDrawablesWithIntrinsicBounds(null, null, img, null);
+                break;
+            case BOTTOM:
+                setCompoundDrawablesWithIntrinsicBounds(null, null, null, img);
+                break;
+        }
+        invalidate();
     }
 
 }

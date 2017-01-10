@@ -59,7 +59,7 @@ public class BlankFragment extends Fragment {
 
     private int colorRandomed(){
         int[] colors = new int[] {Color.RED, Color.GRAY, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA};
-        return colors[new Random().nextInt(colors.length - 1)];
+        return colors[Integer.parseInt(p.split("\\.")[1])-1];
     }
 
 }

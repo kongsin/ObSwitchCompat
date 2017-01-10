@@ -4,7 +4,9 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="track_height">35dp</dimen>
     <dimen name="thumb_height">35dp</dimen>
-    <dimen name="thumb_width">35dp</dimen>
+    <dimen name="thumb_width">70dp</dimen>
     <dimen name="text_size">16sp</dimen>
-    <dimen name="stoke">1dp</dimen>
+    <dimen name="stoke">1.5dp</dimen>
+    <dimen name="tracktab_space">6dp</dimen>
+    <dimen name="tracktab_spaceTop">2dp</dimen>
 </resources>

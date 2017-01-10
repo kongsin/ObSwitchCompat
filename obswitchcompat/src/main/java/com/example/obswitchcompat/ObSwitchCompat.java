@@ -57,6 +57,8 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     private int trackTextColor                  = Color.GRAY;
     private int trackWidth                      = -1;
     private int trackHeight                     = -1;
+    private int trackTabSpace                   = 0;
+    private int tabIconPadding                  = 0;
 
     private int thumbColor                      = Color.GRAY;
     private int thumbStokeColor                 = Color.WHITE;
@@ -73,8 +75,9 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     private Drawable trackDrawable;
     private Drawable thumbDrawable;
     private ObSwitchCompatIconAdapter mTabIcons;
+    private ObSwitchCompatTab.ImagePosition imagePosirion;
 
-    public void setThumbPadding(int[] thumbPadding) {
+    public void setTabPadding(int[] thumbPadding) {
         if (thumbPadding != null && thumbPadding.length != 4) {
             throw new Error("Thumb padding length must be 4 : [left][top][right][bottom]");
         } else {
@@ -82,8 +85,8 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         }
     }
 
-    public int[] getThumbPadding() {
-        return thumbPadding == null ? thumbPadding = new int[]{parseDP(4), parseDP(2), parseDP(4), parseDP(2)} : thumbPadding; // left top right bottom
+    public int[] getTabPadding() {
+        return thumbPadding == null ? thumbPadding = new int[]{parseDP(6), parseDP(2), parseDP(6), parseDP(2)} : thumbPadding; // left top right bottom
     }
 
     public void setCornerRadians(int cornerRadians) {
@@ -98,6 +101,22 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     public void setTrackColor(int trackColor) {
         this.trackColor = trackColor;
         initTrack();
+    }
+
+    public void setTrackTabSpace(int trackTabSpace) {
+        this.trackTabSpace = trackTabSpace;
+    }
+
+    public void setTabIconPadding(int val) {
+        tabIconPadding = val;
+    }
+
+    public int getTabIconPadding() {
+        return tabIconPadding;
+    }
+
+    public int getTrackTabSpace() {
+        return trackTabSpace == 0 ? parseDP(4) : trackTabSpace;
     }
 
     public void setTrackPadding(int trackPadding){
@@ -283,7 +302,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         }
     };
 
-    private String getPageTitle(int position){
+    public String getPageTitle(int position){
         if (isInEditMode()){
             return "TAB" + position;
         } else {
@@ -304,7 +323,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         }
     }
 
-    public void setCurrentTab(final float offset, final int position){
+    private void setCurrentTab(final float offset, final int position){
 
         if (mTabCount > 0) {
             float w = mThumbView.getWidth();
@@ -325,11 +344,11 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         }
     }
 
-    public void initView(AttributeSet attrs){
+    private void initView(AttributeSet attrs){
         inflatLayout(attrs);
     }
 
-    public void initView(){
+    private void initView(){
         inflatLayout(null);
     }
 
@@ -419,8 +438,9 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
 
     }
 
-    public void setTabIcon(ObSwitchCompatIconAdapter tabIcon){
+    public void setTabIcon(ObSwitchCompatIconAdapter tabIcon, ObSwitchCompatTab.ImagePosition position){
         this.mTabIcons = tabIcon;
+        this.imagePosirion = position;
         invalidate();
     }
 
@@ -461,44 +481,24 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     }
 
     private List<TextView> getTitleViews(){
+        if (!titleViews.isEmpty()) {
+            titleViews.clear();
+        }
 
-        LinearLayout.LayoutParams params = new LayoutParams(0, getTrackHeight());
-        params.weight = 1;
-        params.gravity = Gravity.CENTER;
-        int[] padding = getThumbPadding();
         for (int i = 0; i < mTabCount; i++) {
-            ObSwitchCompatTab textView = new ObSwitchCompatTab(getContext());
-            textView.setPadding(padding[0], padding[1], padding[2], padding[3]);
-            textView.setLayoutParams(params);
+            ObSwitchCompatTab textView = getTabView();
             textView.setText(getPageTitle(i));
             textView.setAlpha(tabAlpha);
-            textView.setImageDrawable(getTabDrawable(i));
-            textView.setGravity(Gravity.CENTER);
+            textView.setImageDrawable(getTabDrawable(i), imagePosirion);
             textView.setOnClickListener(this);
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTitleTextSize());
             textView.setTag(i);
             titleViews.add(textView);
         }
         return titleViews;
     }
 
-    private Drawable getTabDrawable(int i) {
-        if (mTabIcons != null && mTabIcons.getItemCount() > i){
-            return ContextCompat.getDrawable(getContext(), mTabIcons.getTabIcon(i));
-        }
-        return null;
-    }
-
     private TextView getThumbView(){
-        int[] padding = getThumbPadding();
-        mThumbView = new ObSwitchCompatTab(getContext());
-        mThumbView.setGravity(Gravity.CENTER);
-        mThumbView.setTextColor(Color.WHITE);
-        mThumbView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTitleTextSize());
-        mThumbView.setPadding(padding[0], padding[1], padding[2], padding[3]);
-        mThumbView.setWidth(getThumbWidth());
-        mThumbView.setHeight(getThumbHeight());
-
+        mThumbView = getTabView();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             mThumbView.setBackground(thumbDrawable != null ? thumbDrawable : getThumb());
         } else {
@@ -506,6 +506,26 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         }
 
         return mThumbView;
+    }
+
+    private ObSwitchCompatTab getTabView(){
+        int[] padding = getTabPadding();
+        ObSwitchCompatTab textView = new ObSwitchCompatTab(getContext());
+        textView.setPadding(padding[0], padding[1], padding[2], padding[3]);
+        textView.setImageIconPadding(tabIconPadding);
+        textView.setGravity(Gravity.CENTER);
+        textView.setOnClickListener(this);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTitleTextSize());
+        textView.setWidth(getThumbWidth());
+        textView.setHeight(getThumbHeight());
+        return textView;
+    }
+
+    private Drawable getTabDrawable(int i) {
+        if (mTabIcons != null && mTabIcons.getItemCount() > i){
+            return ContextCompat.getDrawable(getContext(), mTabIcons.getTabIcon(i));
+        }
+        return null;
     }
 
     public void setThumbText(String text){
@@ -516,7 +536,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         mThumbView.post(new Runnable() {
             @Override
             public void run() {
-                mThumbView.setImageDrawable(getTabDrawable(getCurrentPosition()));
+                mThumbView.setImageDrawable(getTabDrawable(getCurrentPosition()), imagePosirion);
                 mThumbView.invalidate();
             }
         });

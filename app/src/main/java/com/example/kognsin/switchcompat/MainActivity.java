@@ -1,7 +1,6 @@
 package com.example.kognsin.switchcompat;
 
 import android.graphics.Color;
-import android.support.annotation.DrawableRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -11,6 +10,7 @@ import android.os.Bundle;
 
 import com.example.obswitchcompat.ObSwitchCompat;
 import com.example.obswitchcompat.ObSwitchCompatIconAdapter;
+import com.example.obswitchcompat.ObSwitchCompatTab;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,25 +30,30 @@ public class MainActivity extends AppCompatActivity {
         pager.setCurrentItem(0);
 
         List<Integer> icons = new ArrayList<>();
-        icons.add(android.R.drawable.ic_dialog_info);
-        icons.add(android.R.drawable.ic_dialog_dialer);
-        icons.add(android.R.drawable.ic_dialog_alert);
-        icons.add(android.R.drawable.ic_dialog_email);
-        icons.add(android.R.drawable.ic_dialog_map);
+        icons.add(R.drawable.ic_assignment_ind_black_24dp);
+        icons.add(R.drawable.ic_av_timer_black_24dp);
+        icons.add(R.drawable.ic_cast_black_24dp);
+        icons.add(R.drawable.ic_cloud_download_black_24dp);
+        icons.add(R.drawable.ic_mail_outline_black_24dp);
         IconAdapter iconAdapter = new IconAdapter(icons);
 
         obSwitchCompat = (ObSwitchCompat) findViewById(R.id.obSwitchCompat);
-        obSwitchCompat.setTrackHeight(getResources().getDimensionPixelSize(R.dimen.track_height));
-        obSwitchCompat.setThumbHeight(getResources().getDimensionPixelSize(R.dimen.thumb_height));
-        obSwitchCompat.setThumbWidth(getResources().getDimensionPixelSize(R.dimen.thumb_width));
-        obSwitchCompat.setThumbColor(android.R.color.transparent);
-        obSwitchCompat.setThumbStokeWidth(0);
+        obSwitchCompat.setTrackHeight((int) getResources().getDimension(R.dimen.track_height));
+        obSwitchCompat.setThumbHeight((int) getResources().getDimension(R.dimen.thumb_height));
+        obSwitchCompat.setThumbWidth((int) getResources().getDimension(R.dimen.thumb_width));
+        obSwitchCompat.setThumbColor(Color.TRANSPARENT);
+        obSwitchCompat.setThumbStokeWidth((int) getResources().getDimension(R.dimen.stoke));
+        obSwitchCompat.setThumbStokeColor(Color.LTGRAY);
         obSwitchCompat.setTrackStokeWidth(0);
         obSwitchCompat.setTrackPadding(0);
-        obSwitchCompat.setTrackColor(Color.WHITE);
+        obSwitchCompat.setTrackColor(Color.TRANSPARENT);
         obSwitchCompat.setTrackStokeColor(Color.WHITE);
+        obSwitchCompat.setThumbTextColor(Color.GRAY);
+        int tabPadding = (int) getResources().getDimension(R.dimen.tracktab_space);
+        int tabPaddingTop = (int) getResources().getDimension(R.dimen.tracktab_spaceTop);
+        obSwitchCompat.setTabPadding(new int[]{tabPadding, tabPaddingTop, tabPadding, tabPaddingTop});
 
-        obSwitchCompat.setTabIcon(iconAdapter);
+        obSwitchCompat.setTabIcon(iconAdapter, ObSwitchCompatTab.ImagePosition.LEFT);
         obSwitchCompat.setupWithViewPager(pager);
     }
 
@@ -70,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return "";
+            return "P." + (position + 1);
         }
     }
 
