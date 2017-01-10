@@ -5,9 +5,11 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Random;
@@ -19,15 +21,17 @@ import java.util.Random;
 public class BlankFragment extends Fragment {
 
     public String p;
+    private int img;
 
     public BlankFragment() {
         // Required empty public constructor
     }
 
-    public static BlankFragment newInstance(String pageNumber) {
+    public static BlankFragment newInstance(String pageNumber, int img) {
 
         Bundle args = new Bundle();
         args.putString("P", pageNumber);
+        args.putInt("I", img);
         BlankFragment fragment = new BlankFragment();
         fragment.setArguments(args);
         return fragment;
@@ -43,6 +47,7 @@ public class BlankFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null){
             setPage(getArguments().getString("P"));
+            img = getArguments().getInt("I");
         }
     }
 
@@ -51,15 +56,9 @@ public class BlankFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_blank, container, false);
-        TextView textView = (TextView) view.findViewById(R.id.tv);
-        textView.setText(p);
-        view.setBackgroundColor(colorRandomed());
+        ImageView imageView = (ImageView) view.findViewById(R.id.img_view);
+        imageView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        imageView.setImageResource(img);
         return view;
     }
-
-    private int colorRandomed(){
-        int[] colors = new int[] {Color.RED, Color.GRAY, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA};
-        return colors[Integer.parseInt(p.split("\\.")[1])-1];
-    }
-
 }

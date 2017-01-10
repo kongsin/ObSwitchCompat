@@ -18,16 +18,12 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     ViewPager pager;
     ObSwitchCompat obSwitchCompat;
+    private IconAdapter iconAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        FragmentAdapter mFragmentAdapter = new FragmentAdapter(getSupportFragmentManager());
-        pager = (ViewPager) findViewById(R.id.pager);
-        pager.setAdapter(mFragmentAdapter);
-        pager.setOffscreenPageLimit(mFragmentAdapter.getCount());
-        pager.setCurrentItem(0);
 
         List<Integer> icons = new ArrayList<>();
         icons.add(R.drawable.ic_assignment_ind_black_24dp);
@@ -35,7 +31,13 @@ public class MainActivity extends AppCompatActivity {
         icons.add(R.drawable.ic_cast_black_24dp);
         icons.add(R.drawable.ic_cloud_download_black_24dp);
         icons.add(R.drawable.ic_mail_outline_black_24dp);
-        IconAdapter iconAdapter = new IconAdapter(icons);
+        iconAdapter = new IconAdapter(icons);
+
+        FragmentAdapter mFragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), iconAdapter);
+        pager = (ViewPager) findViewById(R.id.pager);
+        pager.setAdapter(mFragmentAdapter);
+        pager.setOffscreenPageLimit(mFragmentAdapter.getCount());
+        pager.setCurrentItem(0);
 
         obSwitchCompat = (ObSwitchCompat) findViewById(R.id.obSwitchCompat);
         obSwitchCompat.setTrackHeight((int) getResources().getDimension(R.dimen.track_height));
@@ -59,13 +61,17 @@ public class MainActivity extends AppCompatActivity {
 
     public class FragmentAdapter extends FragmentPagerAdapter{
 
-        public FragmentAdapter(FragmentManager fm) {
+
+        private final IconAdapter mIconAdapter;
+
+        public FragmentAdapter(FragmentManager fm, IconAdapter adapter) {
             super(fm);
+            mIconAdapter = iconAdapter;
         }
 
         @Override
         public Fragment getItem(int position) {
-            return BlankFragment.newInstance("P."+ (position + 1));
+            return BlankFragment.newInstance("P."+ (position + 1), iconAdapter.getTabIcon(position));
         }
 
         @Override

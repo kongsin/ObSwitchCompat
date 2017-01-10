@@ -4,11 +4,12 @@
     android:layout_height="match_parent"
     tools:context="com.example.kognsin.switchcompat.BlankFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:id="@+id/tv"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+    <ImageView
+        android:layout_gravity="center"
+        android:id="@+id/img_view"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:padding="64dp"
+        android:src="@drawable/ic_assignment_ind_black_24dp"/>
 
 </FrameLayout>
