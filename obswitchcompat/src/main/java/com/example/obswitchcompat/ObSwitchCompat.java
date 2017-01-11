@@ -46,7 +46,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     private ObSwitchCompatTab mThumbView;
     private static final String TAG             = "ObSwitchCompat";
     private int currentPosition                 = 0;
-    private boolean isScrollNormal              = true;
+    private int isScrollNormal                  = 0;
     private boolean checked                     = false;
     private int titleTextSize                   = -1;
     private float tabAlpha                      = 0.6F;
@@ -383,7 +383,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
 
     private void checkScrollType(){
         if (mPager != null && !checked){
-            isScrollNormal = mPager.getScrollX() == currentPosition * mPager.getWidth();
+            isScrollNormal = mPager.getScrollX() - (currentPosition * mPager.getWidth());
             checked = true;
         }
     }
@@ -468,9 +468,8 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
     }
 
     private void scrollWidthFixedWrongPosition(int position){
-        int pageWidth = mPager.getWidth();
-        if (!isScrollNormal) {
-            pageScroll(position - pageWidth);
+        if ((isScrollNormal != 0)) {
+            pageScroll(position + isScrollNormal);
         } else {
             pageScroll(position);
         }
