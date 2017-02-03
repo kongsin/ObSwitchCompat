@@ -51,11 +51,11 @@ public class MainActivity extends AppCompatActivity {
         obSwitchCompat.setTrackColor(Color.TRANSPARENT);
         obSwitchCompat.setTrackStokeColor(Color.WHITE);
         obSwitchCompat.setThumbTextColor(Color.GRAY);
+        obSwitchCompat.setTitleTextSize((int) getResources().getDimension(R.dimen.text_size));
         int tabPadding = (int) getResources().getDimension(R.dimen.tracktab_space);
         int tabPaddingTop = (int) getResources().getDimension(R.dimen.tracktab_spaceTop);
         obSwitchCompat.setTabPadding(new int[]{tabPadding, tabPaddingTop, tabPadding, tabPaddingTop});
-
-        obSwitchCompat.setTabIcon(iconAdapter, ObSwitchCompatTab.ImagePosition.LEFT);
+        //obSwitchCompat.setTabIcon(iconAdapter, ObSwitchCompatTab.ImagePosition.LEFT);
         obSwitchCompat.setupWithViewPager(pager);
     }
 

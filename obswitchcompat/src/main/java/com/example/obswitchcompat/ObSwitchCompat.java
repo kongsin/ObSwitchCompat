@@ -514,7 +514,7 @@ public class ObSwitchCompat extends LinearLayout implements View.OnClickListener
         textView.setImageIconPadding(tabIconPadding);
         textView.setGravity(Gravity.CENTER);
         textView.setOnClickListener(this);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTitleTextSize());
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, getTitleTextSize());
         textView.setWidth(getThumbWidth());
         textView.setHeight(getThumbHeight());
         return textView;
